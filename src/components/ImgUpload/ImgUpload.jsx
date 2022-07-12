@@ -100,9 +100,7 @@ const ImgUpload = () => {
                 </div>
 
                 {/* Наложение эффекта на изображение */}
-                <fieldset className="img-upload__effects  effects">
-                  <EffectsList />
-                </fieldset>
+                <EffectsList />
 
                 {/* Добавление хэш-тегов и комментария к изображению */}
                 <fieldset className="img-upload__text text">
