@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import EffectsList from 'components/EffectsList/EffectsList';
+import SuccessModal from 'components/SuccessModal/SuccessModal';
 
 const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -13,6 +14,24 @@ const ImgUpload = () => {
     setModalOpen(false);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    closeModal();
+    console.log('Форма успешно отправлена');
+  };
+
+  const [isSuccessModal, setSuccessModal] = useState(false);
+
+  const openSuccessModal = () => {
+    console.log('run setSuccessModal');
+    setSuccessModal(true);
+  };
+
+  const closeSuccessModal = () => {
+    console.log('close SuccessModal');
+    setSuccessModal(false);
+  };
+
   return (
     <section className="img-upload">
       <div className="img-upload__wrapper">
@@ -24,6 +43,7 @@ const ImgUpload = () => {
           encType="multipart/form-data"
           autoComplete="off"
           action="https://26.javascript.pages.academy/kekstagram "
+          onSubmit={handleSubmit}
         >
           {/* Изначальное состояние поля для загрузки изображения */}
           <fieldset className="img-upload__start">
@@ -118,7 +138,14 @@ const ImgUpload = () => {
                 </fieldset>
 
                 {/* Кнопка для отправки данных на сервер */}
-                <button type="submit" className="img-upload__submit" id="upload-submit">
+                <button
+                  type="submit"
+                  className="img-upload__submit"
+                  id="upload-submit"
+                  onClick={() => {
+                    openSuccessModal();
+                  }}
+                >
                   Опубликовать
                 </button>
               </div>
@@ -126,6 +153,7 @@ const ImgUpload = () => {
           ) : null}
         </form>
       </div>
+      {isSuccessModal ? <SuccessModal closeSuccessModal={closeSuccessModal} /> : null}
     </section>
   );
 };
