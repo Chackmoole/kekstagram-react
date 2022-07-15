@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import EffectsList from 'components/EffectsList/EffectsList';
 import SuccessModal from 'components/SuccessModal/SuccessModal';
+import { sendData } from 'src/api/api';
+import ErrorModal from 'components/ErrorModal/ErrorModal';
 
 const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -15,21 +17,41 @@ const ImgUpload = () => {
   };
 
   const handleSubmit = (e) => {
+    console.log(e.target);
     e.preventDefault();
+
+    const formData = new FormData(e.target);
+
     closeModal();
-    console.log('Форма успешно отправлена');
+    sendData(formData)
+      .then((response) => {
+        if (response.ok) {
+          openSuccessModal();
+        } else {
+          openErrorModalOpen();
+        }
+      })
+      .catch(openErrorModalOpen);
   };
 
-  const [isSuccessModal, setSuccessModal] = useState(false);
+  const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
 
   const openSuccessModal = () => {
-    console.log('run setSuccessModal');
-    setSuccessModal(true);
+    setSuccessModalOpen(true);
   };
 
   const closeSuccessModal = () => {
-    console.log('close SuccessModal');
-    setSuccessModal(false);
+    setSuccessModalOpen(false);
+  };
+
+  const [isErrorModalOpen, setErrorModalOpen] = useState(false);
+
+  const openErrorModalOpen = () => {
+    setErrorModalOpen(true);
+  };
+
+  const closeErrorModal = () => {
+    setErrorModalOpen(false);
   };
 
   return (
@@ -138,14 +160,7 @@ const ImgUpload = () => {
                 </fieldset>
 
                 {/* Кнопка для отправки данных на сервер */}
-                <button
-                  type="submit"
-                  className="img-upload__submit"
-                  id="upload-submit"
-                  onClick={() => {
-                    openSuccessModal();
-                  }}
-                >
+                <button type="submit" className="img-upload__submit" id="upload-submit">
                   Опубликовать
                 </button>
               </div>
@@ -153,7 +168,8 @@ const ImgUpload = () => {
           ) : null}
         </form>
       </div>
-      {isSuccessModal ? <SuccessModal closeSuccessModal={closeSuccessModal} /> : null}
+      <SuccessModal isOpen={isSuccessModalOpen} onClose={closeSuccessModal} />
+      <ErrorModal isOpen={isErrorModalOpen} onClose={closeErrorModal} />
     </section>
   );
 };
