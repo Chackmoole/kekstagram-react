@@ -1,7 +1,52 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import EffectsList from 'components/EffectsList/EffectsList';
+import SuccessModal from 'components/SuccessModal/SuccessModal';
+import { sendData } from 'src/api/api';
+import ErrorModal from 'components/ErrorModal/ErrorModal';
 
-const ImgUpload = () => {
+const DEFAULT_SCALING_VALUE = 100;
+const DEFAULT_SCALING_STEP = 25;
+const DEFAULT_EFFECT = 'none';
+
+const effectOptions = {
+  chrome: {
+    filter: 'grayscale',
+    min: 0,
+    max: 1,
+    step: 0.1,
+    unit: '',
+  },
+  sepia: {
+    filter: 'sepia',
+    min: 0,
+    max: 1,
+    step: 0.1,
+    unit: '',
+  },
+  marvin: {
+    filter: 'invert',
+    min: 0,
+    max: 100,
+    step: 1,
+    unit: '%',
+  },
+  phobos: {
+    filter: 'blur',
+    min: 0,
+    max: 3,
+    step: 0.1,
+    unit: 'px',
+  },
+  heat: {
+    filter: 'brightness',
+    min: 1,
+    max: 3,
+    step: 0.1,
+    unit: '',
+  },
+};
+
+const ImgUpload = ({ photoEffect }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   // console.log('isModalOpen', isModalOpen);
 
@@ -12,6 +57,75 @@ const ImgUpload = () => {
   const closeModal = () => {
     setModalOpen(false);
   };
+
+  const handleSubmit = (e) => {
+    console.log(e.target);
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    closeModal();
+    sendData(formData)
+      .then((response) => {
+        if (response.ok) {
+          openSuccessModal();
+        } else {
+          openErrorModalOpen();
+        }
+      })
+      .catch(openErrorModalOpen);
+  };
+
+  const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
+
+  const openSuccessModal = () => {
+    setSuccessModalOpen(true);
+  };
+
+  const closeSuccessModal = () => {
+    setSuccessModalOpen(false);
+  };
+
+  const [isErrorModalOpen, setErrorModalOpen] = useState(false);
+
+  const openErrorModalOpen = () => {
+    setErrorModalOpen(true);
+  };
+
+  const closeErrorModal = () => {
+    setErrorModalOpen(false);
+  };
+
+  // SCALING
+  const [scalingValue, setScalingValue] = useState(DEFAULT_SCALING_VALUE);
+
+  const scalingIncrement = () => {
+    if (scalingValue < DEFAULT_SCALING_VALUE) {
+      setScalingValue(scalingValue + DEFAULT_SCALING_STEP);
+    }
+  };
+  const scalingDecrement = () => {
+    if (scalingValue > DEFAULT_SCALING_STEP) {
+      setScalingValue(scalingValue - DEFAULT_SCALING_STEP);
+    }
+  };
+
+  // EFFECTS
+  const [effect, setEffect] = useState(DEFAULT_EFFECT);
+
+  const onEffectChange = (value) => {
+    setEffect(value);
+  };
+
+  const filterStyle = useMemo(() => {
+    const effectItem = effectOptions[effect];
+    if (effectItem) {
+      return { filter: `${effectItem.filter}(${effectItem.max}${effectItem.unit})` };
+    }
+    return { filter: 'none' };
+  }, [effect]);
+
+  console.log(effect, 'effect', filterStyle);
 
   return (
     <section className="img-upload">
@@ -24,6 +138,7 @@ const ImgUpload = () => {
           encType="multipart/form-data"
           autoComplete="off"
           action="https://26.javascript.pages.academy/kekstagram "
+          onSubmit={handleSubmit}
         >
           {/* Изначальное состояние поля для загрузки изображения */}
           <fieldset className="img-upload__start">
@@ -50,18 +165,25 @@ const ImgUpload = () => {
                 <div className="img-upload__preview-container">
                   {/* Изменение размера изображения */}
                   <fieldset className="img-upload__scale  scale">
-                    <button type="button" className="scale__control  scale__control--smaller">
+                    <button
+                      type="button"
+                      className="scale__control  scale__control--smaller"
+                      onClick={scalingDecrement}
+                    >
                       Уменьшить
                     </button>
                     <input
                       type="text"
                       className="scale__control  scale__control--value"
-                      value="55%"
+                      value={`${scalingValue}%`}
                       title="Image Scale"
                       name="scale"
-                      readOnly
                     />
-                    <button type="button" className="scale__control  scale__control--bigger">
+                    <button
+                      type="button"
+                      className="scale__control  scale__control--bigger"
+                      onClick={scalingIncrement}
+                    >
                       Увеличить
                     </button>
                   </fieldset>
@@ -71,6 +193,7 @@ const ImgUpload = () => {
                     <img
                       src="img/upload-default-image.jpg"
                       alt="Предварительный просмотр фотографии"
+                      style={filterStyle}
                     />
                   </div>
 
@@ -100,7 +223,7 @@ const ImgUpload = () => {
                 </div>
 
                 {/* Наложение эффекта на изображение */}
-                <EffectsList />
+                <EffectsList currentEffect={effect} onEffectChange={onEffectChange} />
 
                 {/* Добавление хэш-тегов и комментария к изображению */}
                 <fieldset className="img-upload__text text">
@@ -126,6 +249,8 @@ const ImgUpload = () => {
           ) : null}
         </form>
       </div>
+      <SuccessModal isOpen={isSuccessModalOpen} onClose={closeSuccessModal} />
+      <ErrorModal isOpen={isErrorModalOpen} onClose={closeErrorModal} />
     </section>
   );
 };

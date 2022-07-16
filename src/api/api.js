@@ -4,13 +4,12 @@ const loadPhotos = () => {
   return fetch(`${API_URL}/data`).then((response) => response.json());
 };
 
-const sendData = (formData, onSuccess, onError) => {
-  fetch(API_URL, {
+const sendData = (formData) => {
+  console.log(formData);
+  return fetch(API_URL, {
     method: 'POST',
     body: formData,
-  })
-    .then(onSuccess)
-    .catch(onError);
+  });
 };
 
 export { loadPhotos, sendData };

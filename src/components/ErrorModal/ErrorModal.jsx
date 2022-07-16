@@ -1,11 +1,14 @@
 import React from 'react';
 
-const ErrorModal = () => {
+const ErrorModal = ({ isOpen, onClose }) => {
+  if (!isOpen) {
+    return null;
+  }
   return (
-    <section className="error hidden">
+    <section className="error">
       <div className="error__inner">
         <h2 className="error__title">Ошибка загрузки файла</h2>
-        <button type="button" className="error__button">
+        <button type="button" className="error__button" onClick={onClose}>
           Загрузить другой файл
         </button>
       </div>
