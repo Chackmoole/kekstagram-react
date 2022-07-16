@@ -3,9 +3,10 @@ import EffectsList from 'components/EffectsList/EffectsList';
 import SuccessModal from 'components/SuccessModal/SuccessModal';
 import { sendData } from 'src/api/api';
 import ErrorModal from 'components/ErrorModal/ErrorModal';
+import SliderEffects from 'components/SliderEffects/SliderEffects';
 
 const DEFAULT_SCALING_VALUE = 100;
-const DEFAULT_SCALING_STEP = 25;
+const SCALING_STEP = 25;
 const DEFAULT_EFFECT = 'none';
 
 const effectOptions = {
@@ -46,9 +47,8 @@ const effectOptions = {
   },
 };
 
-const ImgUpload = ({ photoEffect }) => {
+const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
-  // console.log('isModalOpen', isModalOpen);
 
   const openModal = () => {
     setModalOpen(true);
@@ -59,7 +59,6 @@ const ImgUpload = ({ photoEffect }) => {
   };
 
   const handleSubmit = (e) => {
-    console.log(e.target);
     e.preventDefault();
 
     const formData = new FormData(e.target);
@@ -101,13 +100,20 @@ const ImgUpload = ({ photoEffect }) => {
 
   const scalingIncrement = () => {
     if (scalingValue < DEFAULT_SCALING_VALUE) {
-      setScalingValue(scalingValue + DEFAULT_SCALING_STEP);
+      setScalingValue(scalingValue + SCALING_STEP);
     }
   };
   const scalingDecrement = () => {
-    if (scalingValue > DEFAULT_SCALING_STEP) {
-      setScalingValue(scalingValue - DEFAULT_SCALING_STEP);
+    if (scalingValue > SCALING_STEP) {
+      setScalingValue(scalingValue - SCALING_STEP);
     }
+  };
+
+  // SLIDER
+  const [filterValue, setFilterValue] = useState(null);
+
+  const onSliderChange = (value) => {
+    setFilterValue(value);
   };
 
   // EFFECTS
@@ -120,12 +126,14 @@ const ImgUpload = ({ photoEffect }) => {
   const filterStyle = useMemo(() => {
     const effectItem = effectOptions[effect];
     if (effectItem) {
-      return { filter: `${effectItem.filter}(${effectItem.max}${effectItem.unit})` };
+      return `${effectItem.filter}(${filterValue}${effectItem.unit})`;
     }
-    return { filter: 'none' };
-  }, [effect]);
+    return 'none';
+  }, [effect, filterValue]);
 
-  console.log(effect, 'effect', filterStyle);
+  const transformStyle = useMemo(() => {
+    return `scale(${scalingValue / 100})`;
+  }, [scalingValue]);
 
   return (
     <section className="img-upload">
@@ -193,21 +201,19 @@ const ImgUpload = ({ photoEffect }) => {
                     <img
                       src="img/upload-default-image.jpg"
                       alt="Предварительный просмотр фотографии"
-                      style={filterStyle}
+                      style={{
+                        filter: filterStyle,
+                        transform: transformStyle,
+                      }}
                     />
                   </div>
 
                   {/* Изменение глубины эффекта, накладываемого на изображение */}
-                  <fieldset className="img-upload__effect-level  effect-level">
-                    <input
-                      className="effect-level__value"
-                      type="number"
-                      step="any"
-                      name="effect-level"
-                      value=""
-                    />
-                    <div className="effect-level__slider"></div>
-                  </fieldset>
+                  <SliderEffects
+                    options={effectOptions[effect]}
+                    onSliderChange={onSliderChange}
+                    currentValue={filterValue}
+                  />
 
                   {/* Кнопка для закрытия формы редактирования изображения */}
                   <button
