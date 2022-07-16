@@ -4,6 +4,9 @@ import SuccessModal from 'components/SuccessModal/SuccessModal';
 import { sendData } from 'src/api/api';
 import ErrorModal from 'components/ErrorModal/ErrorModal';
 
+const DEFAULT_SCALING_VALUE = 100;
+const DEFAULT_SCALING_STEP = 25;
+
 const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   // console.log('isModalOpen', isModalOpen);
@@ -54,6 +57,19 @@ const ImgUpload = () => {
     setErrorModalOpen(false);
   };
 
+  const [scalingValue, setScalingValue] = useState(DEFAULT_SCALING_VALUE);
+
+  const scalingIncrement = () => {
+    if (scalingValue < DEFAULT_SCALING_VALUE) {
+      setScalingValue(scalingValue + DEFAULT_SCALING_STEP);
+    }
+  };
+  const scalingDecrement = () => {
+    if (scalingValue > DEFAULT_SCALING_STEP) {
+      setScalingValue(scalingValue - DEFAULT_SCALING_STEP);
+    }
+  };
+
   return (
     <section className="img-upload">
       <div className="img-upload__wrapper">
@@ -92,18 +108,25 @@ const ImgUpload = () => {
                 <div className="img-upload__preview-container">
                   {/* Изменение размера изображения */}
                   <fieldset className="img-upload__scale  scale">
-                    <button type="button" className="scale__control  scale__control--smaller">
+                    <button
+                      type="button"
+                      className="scale__control  scale__control--smaller"
+                      onClick={scalingDecrement}
+                    >
                       Уменьшить
                     </button>
                     <input
                       type="text"
                       className="scale__control  scale__control--value"
-                      value="55%"
+                      value={`${scalingValue}%`}
                       title="Image Scale"
                       name="scale"
-                      readOnly
                     />
-                    <button type="button" className="scale__control  scale__control--bigger">
+                    <button
+                      type="button"
+                      className="scale__control  scale__control--bigger"
+                      onClick={scalingIncrement}
+                    >
                       Увеличить
                     </button>
                   </fieldset>
