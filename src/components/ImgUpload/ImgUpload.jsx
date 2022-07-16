@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import EffectsList from 'components/EffectsList/EffectsList';
 import SuccessModal from 'components/SuccessModal/SuccessModal';
 import { sendData } from 'src/api/api';
@@ -6,8 +6,47 @@ import ErrorModal from 'components/ErrorModal/ErrorModal';
 
 const DEFAULT_SCALING_VALUE = 100;
 const DEFAULT_SCALING_STEP = 25;
+const DEFAULT_EFFECT = 'none';
 
-const ImgUpload = () => {
+const effectOptions = {
+  chrome: {
+    filter: 'grayscale',
+    min: 0,
+    max: 1,
+    step: 0.1,
+    unit: '',
+  },
+  sepia: {
+    filter: 'sepia',
+    min: 0,
+    max: 1,
+    step: 0.1,
+    unit: '',
+  },
+  marvin: {
+    filter: 'invert',
+    min: 0,
+    max: 100,
+    step: 1,
+    unit: '%',
+  },
+  phobos: {
+    filter: 'blur',
+    min: 0,
+    max: 3,
+    step: 0.1,
+    unit: 'px',
+  },
+  heat: {
+    filter: 'brightness',
+    min: 1,
+    max: 3,
+    step: 0.1,
+    unit: '',
+  },
+};
+
+const ImgUpload = ({ photoEffect }) => {
   const [isModalOpen, setModalOpen] = useState(false);
   // console.log('isModalOpen', isModalOpen);
 
@@ -57,6 +96,7 @@ const ImgUpload = () => {
     setErrorModalOpen(false);
   };
 
+  // SCALING
   const [scalingValue, setScalingValue] = useState(DEFAULT_SCALING_VALUE);
 
   const scalingIncrement = () => {
@@ -69,6 +109,23 @@ const ImgUpload = () => {
       setScalingValue(scalingValue - DEFAULT_SCALING_STEP);
     }
   };
+
+  // EFFECTS
+  const [effect, setEffect] = useState(DEFAULT_EFFECT);
+
+  const onEffectChange = (value) => {
+    setEffect(value);
+  };
+
+  const filterStyle = useMemo(() => {
+    const effectItem = effectOptions[effect];
+    if (effectItem) {
+      return { filter: `${effectItem.filter}(${effectItem.max}${effectItem.unit})` };
+    }
+    return { filter: 'none' };
+  }, [effect]);
+
+  console.log(effect, 'effect', filterStyle);
 
   return (
     <section className="img-upload">
@@ -136,6 +193,7 @@ const ImgUpload = () => {
                     <img
                       src="img/upload-default-image.jpg"
                       alt="Предварительный просмотр фотографии"
+                      style={filterStyle}
                     />
                   </div>
 
@@ -165,7 +223,7 @@ const ImgUpload = () => {
                 </div>
 
                 {/* Наложение эффекта на изображение */}
-                <EffectsList />
+                <EffectsList currentEffect={effect} onEffectChange={onEffectChange} />
 
                 {/* Добавление хэш-тегов и комментария к изображению */}
                 <fieldset className="img-upload__text text">
