@@ -55,7 +55,9 @@ const ImgUpload = () => {
 
   const openModal = (e) => {
     setModalOpen(true);
-    setFileUrl(e.target.files[0]);
+    const file = e.target.files[0];
+    const url = URL.createObjectURL(file);
+    setFileUrl(url);
   };
 
   const closeModal = () => {
@@ -211,7 +213,7 @@ const ImgUpload = () => {
                   {/* Предварительный просмотр изображения */}
                   <div className="img-upload__preview">
                     <img
-                      src={URL.createObjectURL(fileUrl)}
+                      src={fileUrl}
                       alt="Предварительный просмотр фотографии"
                       style={{
                         filter: filterStyle,
