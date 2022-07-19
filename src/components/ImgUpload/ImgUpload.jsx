@@ -51,11 +51,11 @@ const effectOptions = {
 const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState('');
-  const [file, setFile] = useState('');
+  const [fileUrl, setFileUrl] = useState('');
 
   const openModal = (e) => {
     setModalOpen(true);
-    setFile(e.target.files[0]);
+    setFileUrl(e.target.files[0]);
   };
 
   const closeModal = () => {
@@ -211,7 +211,7 @@ const ImgUpload = () => {
                   {/* Предварительный просмотр изображения */}
                   <div className="img-upload__preview">
                     <img
-                      src={URL.createObjectURL(file)}
+                      src={URL.createObjectURL(fileUrl)}
                       alt="Предварительный просмотр фотографии"
                       style={{
                         filter: filterStyle,
