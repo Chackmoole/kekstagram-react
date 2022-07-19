@@ -9,6 +9,17 @@ const textErrors = {
   repeat: `Хэштеги не должны повторяться`,
 };
 
+const isHashtagsUnique = (elements) => {
+  const result = [];
+
+  elements.forEach((element) => {
+    if (!result.includes(element)) {
+      result.push(element);
+    }
+  });
+  return elements.length === result.length;
+};
+
 const isHashtagsValid = (value) => {
   const result = {
     isValid: false,
@@ -26,17 +37,6 @@ const isHashtagsValid = (value) => {
     return result;
   }
 
-  const isHashtagsUnique = (elements) => {
-    const result = [];
-
-    elements.forEach((element) => {
-      if (!result.includes(element)) {
-        result.push(element);
-      }
-    });
-    return elements.length === result.length;
-  };
-
   if (!isHashtagsUnique(hashtags)) {
     result.error = textErrors.repeat;
     return result;
@@ -46,11 +46,8 @@ const isHashtagsValid = (value) => {
     result.error = textErrors.characters;
     return result;
   }
-  console.log(result);
 
-  if (hashtags.length <= MAX_COUNT_HASHTAGS || isCharacterValid || isHashtagsUnique(hashtags)) {
-    result.isValid = true;
-  }
+  result.isValid = true;
 
   return result;
 };
