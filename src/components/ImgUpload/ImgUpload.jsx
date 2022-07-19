@@ -71,7 +71,6 @@ const ImgUpload = () => {
     const validation = isHashtagsValid(formData.get('hashtags'));
 
     if (validation.isValid) {
-      console.log('click');
       closeModal();
       sendData(formData)
         .then((response) => {

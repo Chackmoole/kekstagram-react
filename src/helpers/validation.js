@@ -5,9 +5,7 @@ const regExpValidCharacters = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 
 const textErrors = {
   maxCount: `количество Хэштегов не должно превышать ${MAX_COUNT_HASHTAGS}`,
-  firstLetter: 'Хэштеги должны начинаться с символа #',
-  characters: 'Хэштеги должны состоять только из букв и цифр',
-  length: `Хэштеги должны быть не менее ${MIN_LENGTH_HASHTAGS} и не более ${MAX_LENGTH_HASHTAGS} символов`,
+  characters: `Хэштеги должны начинаться с символа #, содержать буквы и цифры, не менее ${MIN_LENGTH_HASHTAGS} и не более ${MAX_LENGTH_HASHTAGS} символов`,
   repeat: `Хэштеги не должны повторяться`,
 };
 
@@ -28,20 +26,6 @@ const isHashtagsValid = (value) => {
     return result;
   }
 
-  const isFirstLetterValid = hashtags.every((item) => item[0] === '#');
-  if (!isFirstLetterValid) {
-    result.error = textErrors.firstLetter;
-    return result;
-  }
-
-  const isLengthValid = hashtags.every(
-    (item) => item.length >= MIN_LENGTH_HASHTAGS && item.length <= MAX_LENGTH_HASHTAGS
-  );
-  if (!isLengthValid) {
-    result.error = textErrors.length;
-    return result;
-  }
-
   const isHashtagsUnique = (elements) => {
     const result = [];
 
@@ -57,22 +41,17 @@ const isHashtagsValid = (value) => {
     result.error = textErrors.repeat;
     return result;
   }
-
   const isCharacterValid = hashtags.every((item) => regExpValidCharacters.test(item));
   if (!isCharacterValid) {
     result.error = textErrors.characters;
     return result;
   }
+  console.log(result);
 
-  if (
-    hashtags.length <= MAX_COUNT_HASHTAGS ||
-    isFirstLetterValid ||
-    isCharacterValid ||
-    isLengthValid ||
-    isHashtagsUnique(hashtags)
-  ) {
+  if (hashtags.length <= MAX_COUNT_HASHTAGS || isCharacterValid || isHashtagsUnique(hashtags)) {
     result.isValid = true;
   }
+
   return result;
 };
 
