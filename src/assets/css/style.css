@@ -1408,3 +1408,8 @@ main {
 .hidden {
   display: none;
 }
+
+.error-message {
+  color: red;
+  margin-top: -16px;
+}
