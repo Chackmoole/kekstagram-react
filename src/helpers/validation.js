@@ -58,7 +58,7 @@ const isHashtagsValid = (value) => {
   };
 
   if (!isHashtagsUnique(hashtags)) {
-    isFormValid.error(textErrors.repeat);
+    isFormValid.error = textErrors.repeat;
   }
 
   if (
