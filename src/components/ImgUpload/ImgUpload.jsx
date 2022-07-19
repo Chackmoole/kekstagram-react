@@ -60,12 +60,17 @@ const ImgUpload = () => {
     setModalOpen(false);
   };
 
+  const resetError = () => {
+    setError('');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
+    const validation = isHashtagsValid(formData.get('hashtags'));
 
-    if (isHashtagsValid(formData.get('hashtags')).isValid) {
+    if (validation.isValid) {
       console.log('click');
       closeModal();
       sendData(formData)
@@ -78,7 +83,7 @@ const ImgUpload = () => {
         })
         .catch(openErrorModalOpen);
     } else {
-      setError(isHashtagsValid(formData.get('hashtags')).error);
+      setError(validation.error);
     }
   };
 
@@ -141,10 +146,6 @@ const ImgUpload = () => {
   const transformStyle = useMemo(() => {
     return `scale(${scalingValue / 100})`;
   }, [scalingValue]);
-
-  const resetError = () => {
-    setError('');
-  };
 
   return (
     <section className="img-upload">

@@ -1,7 +1,7 @@
 const MAX_COUNT_HASHTAGS = 5;
 const MIN_LENGTH_HASHTAGS = 2;
 const MAX_LENGTH_HASHTAGS = 20;
-const regExpValidCharacters = /[A-Za-zА-Яа-яЁё0-9]/;
+const regExpValidCharacters = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 
 const textErrors = {
   maxCount: `количество Хэштегов не должно превышать ${MAX_COUNT_HASHTAGS}`,
@@ -12,8 +12,8 @@ const textErrors = {
 };
 
 const isHashtagsValid = (value) => {
-  const isFormValid = {
-    isValid: true,
+  const result = {
+    isValid: false,
     error: '',
   };
 
@@ -24,26 +24,22 @@ const isHashtagsValid = (value) => {
     .filter((hashtag) => hashtag);
 
   if (hashtags.length > MAX_COUNT_HASHTAGS) {
-    isFormValid.error = textErrors.maxCount;
+    result.error = textErrors.maxCount;
+    return result;
   }
 
   const isFirstLetterValid = hashtags.every((item) => item[0] === '#');
   if (!isFirstLetterValid) {
-    isFormValid.error = textErrors.firstLetter;
+    result.error = textErrors.firstLetter;
+    return result;
   }
 
-  const isCharacterValid = hashtags.every((item) => regExpValidCharacters.test(item));
-  if (!isCharacterValid) {
-    isFormValid.error = textErrors.characters;
-  }
-
-  const isLength = (element) => {
-    return element.length >= MIN_LENGTH_HASHTAGS && element.length <= MAX_LENGTH_HASHTAGS;
-  };
-
-  const isLengthValid = hashtags.every((item) => isLength(item));
+  const isLengthValid = hashtags.every(
+    (item) => item.length >= MIN_LENGTH_HASHTAGS && item.length <= MAX_LENGTH_HASHTAGS
+  );
   if (!isLengthValid) {
-    isFormValid.error = textErrors.length;
+    result.error = textErrors.length;
+    return result;
   }
 
   const isHashtagsUnique = (elements) => {
@@ -58,19 +54,26 @@ const isHashtagsValid = (value) => {
   };
 
   if (!isHashtagsUnique(hashtags)) {
-    isFormValid.error = textErrors.repeat;
+    result.error = textErrors.repeat;
+    return result;
+  }
+
+  const isCharacterValid = hashtags.every((item) => regExpValidCharacters.test(item));
+  if (!isCharacterValid) {
+    result.error = textErrors.characters;
+    return result;
   }
 
   if (
-    hashtags.length > MAX_COUNT_HASHTAGS ||
-    !isFirstLetterValid ||
-    !isCharacterValid ||
-    !isLengthValid ||
-    !isHashtagsUnique(hashtags)
+    hashtags.length <= MAX_COUNT_HASHTAGS ||
+    isFirstLetterValid ||
+    isCharacterValid ||
+    isLengthValid ||
+    isHashtagsUnique(hashtags)
   ) {
-    isFormValid.isValid = false;
+    result.isValid = true;
   }
-  return isFormValid;
+  return result;
 };
 
 export { isHashtagsValid };
