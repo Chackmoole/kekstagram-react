@@ -51,9 +51,11 @@ const effectOptions = {
 const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState('');
+  const [file, setFile] = useState('');
 
-  const openModal = () => {
+  const openModal = (e) => {
     setModalOpen(true);
+    setFile(e.target.files[0]);
   };
 
   const closeModal = () => {
@@ -69,7 +71,6 @@ const ImgUpload = () => {
 
     const formData = new FormData(e.target);
     const validation = isHashtagsValid(formData.get('hashtags'));
-
     if (validation.isValid) {
       closeModal();
       sendData(formData)
@@ -168,8 +169,8 @@ const ImgUpload = () => {
               accept="image/png, image/jpeg"
               name="filename"
               required
-              onChange={() => {
-                openModal();
+              onChange={(e) => {
+                openModal(e);
               }}
             />
             <label htmlFor="upload-file" className="img-upload__label  img-upload__control">
@@ -210,7 +211,7 @@ const ImgUpload = () => {
                   {/* Предварительный просмотр изображения */}
                   <div className="img-upload__preview">
                     <img
-                      src="img/upload-default-image.jpg"
+                      src={URL.createObjectURL(file)}
                       alt="Предварительный просмотр фотографии"
                       style={{
                         filter: filterStyle,
