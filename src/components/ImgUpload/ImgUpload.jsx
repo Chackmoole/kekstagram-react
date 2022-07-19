@@ -4,6 +4,7 @@ import SuccessModal from 'components/SuccessModal/SuccessModal';
 import { sendData } from 'src/api/api';
 import ErrorModal from 'components/ErrorModal/ErrorModal';
 import SliderEffects from 'components/SliderEffects/SliderEffects';
+import { isHashtagsValid } from 'src/helpers/validation';
 
 const DEFAULT_SCALING_VALUE = 100;
 const SCALING_STEP = 25;
@@ -49,6 +50,7 @@ const effectOptions = {
 
 const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [error, setError] = useState('');
 
   const openModal = () => {
     setModalOpen(true);
@@ -58,21 +60,30 @@ const ImgUpload = () => {
     setModalOpen(false);
   };
 
+  const resetError = () => {
+    setError('');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
+    const validation = isHashtagsValid(formData.get('hashtags'));
 
-    closeModal();
-    sendData(formData)
-      .then((response) => {
-        if (response.ok) {
-          openSuccessModal();
-        } else {
-          openErrorModalOpen();
-        }
-      })
-      .catch(openErrorModalOpen);
+    if (validation.isValid) {
+      closeModal();
+      sendData(formData)
+        .then((response) => {
+          if (response.ok) {
+            openSuccessModal();
+          } else {
+            openErrorModalOpen();
+          }
+        })
+        .catch(openErrorModalOpen);
+    } else {
+      setError(validation.error);
+    }
   };
 
   const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
@@ -234,8 +245,15 @@ const ImgUpload = () => {
                 {/* Добавление хэш-тегов и комментария к изображению */}
                 <fieldset className="img-upload__text text">
                   <div className="img-upload__field-wrapper">
-                    <input className="text__hashtags" name="hashtags" placeholder="#ХэшТег" />
+                    <input
+                      className="text__hashtags"
+                      name="hashtags"
+                      placeholder="#ХэшТег"
+                      onChange={resetError}
+                    />
+                    <div className="error-message">{error}</div>
                   </div>
+
                   <div className="img-upload__field-wrapper">
                     <textarea
                       className="text__description"
