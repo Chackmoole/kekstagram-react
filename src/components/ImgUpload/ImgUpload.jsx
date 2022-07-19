@@ -4,15 +4,11 @@ import SuccessModal from 'components/SuccessModal/SuccessModal';
 import { sendData } from 'src/api/api';
 import ErrorModal from 'components/ErrorModal/ErrorModal';
 import SliderEffects from 'components/SliderEffects/SliderEffects';
+import { isHashtagsValid } from 'src/helpers/validation';
 
 const DEFAULT_SCALING_VALUE = 100;
 const SCALING_STEP = 25;
 const DEFAULT_EFFECT = 'none';
-const MAX_COUNT_HASHTAGS = 5;
-const MIN_LENGTH_HASHTAGS = 2;
-const MAX_LENGTH_HASHTAGS = 20;
-const regExpFirstLetter = /^#/;
-const regExpValidCharacters = /[A-Za-zА-Яа-яЁё0-9]/;
 
 const effectOptions = {
   chrome: {
@@ -52,14 +48,6 @@ const effectOptions = {
   },
 };
 
-const textErrors = {
-  maxCount: `количество Хэштегов не должно превышать ${MAX_COUNT_HASHTAGS}`,
-  firstLetter: 'Хэштеги должны начинаться с символа #',
-  characters: 'Хэштеги должны состоять только из букв и цифр',
-  length: `Хэштеги должны быть не менее ${MIN_LENGTH_HASHTAGS} и не более ${MAX_LENGTH_HASHTAGS} символов`,
-  repeat: `Хэштеги не должны повторяться`,
-};
-
 const ImgUpload = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [error, setError] = useState('');
@@ -77,20 +65,21 @@ const ImgUpload = () => {
 
     const formData = new FormData(e.target);
 
-    isHashtagsValid(formData.get('hashtags'));
-
-    return;
-
-    closeModal();
-    sendData(formData)
-      .then((response) => {
-        if (response.ok) {
-          openSuccessModal();
-        } else {
-          openErrorModalOpen();
-        }
-      })
-      .catch(openErrorModalOpen);
+    if (isHashtagsValid(formData.get('hashtags')).isValid) {
+      console.log('click');
+      closeModal();
+      sendData(formData)
+        .then((response) => {
+          if (response.ok) {
+            openSuccessModal();
+          } else {
+            openErrorModalOpen();
+          }
+        })
+        .catch(openErrorModalOpen);
+    } else {
+      setError(isHashtagsValid(formData.get('hashtags')).error);
+    }
   };
 
   const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
@@ -153,54 +142,7 @@ const ImgUpload = () => {
     return `scale(${scalingValue / 100})`;
   }, [scalingValue]);
 
-  //VALID
-  const isHashtagsValid = (value) => {
-    const hashtags = value
-      .trim()
-      .toLowerCase()
-      .split(' ')
-      .filter((hashtag) => hashtag);
-
-    if (hashtags.length > MAX_COUNT_HASHTAGS) {
-      setError(textErrors.maxCount);
-    }
-
-    const isFirstLetterValid = hashtags.every((item) => regExpFirstLetter.test(item));
-    if (!isFirstLetterValid) {
-      setError(textErrors.firstLetter);
-    }
-
-    const isCharacterValid = hashtags.every((item) => regExpValidCharacters.test(item));
-    if (!isCharacterValid) {
-      setError(textErrors.characters);
-    }
-
-    const isLength = (element) => {
-      return element.length >= MIN_LENGTH_HASHTAGS && element.length <= MAX_LENGTH_HASHTAGS;
-    };
-
-    const isLengthValid = hashtags.every((item) => isLength(item));
-    if (!isLengthValid) {
-      setError(textErrors.length);
-    }
-
-    const isHashtagsUnique = (elements) => {
-      const result = [];
-
-      elements.forEach((element) => {
-        if (!result.includes(element)) {
-          result.push(element);
-        }
-      });
-      return elements.length === result.length;
-    };
-
-    if (!isHashtagsUnique(hashtags)) {
-      setError(textErrors.repeat);
-    }
-  };
-
-  const setNoError = () => {
+  const resetError = () => {
     setError('');
   };
 
@@ -307,7 +249,7 @@ const ImgUpload = () => {
                       className="text__hashtags"
                       name="hashtags"
                       placeholder="#ХэшТег"
-                      onChange={setNoError}
+                      onChange={resetError}
                     />
                     <div className="error-message">{error}</div>
                   </div>
